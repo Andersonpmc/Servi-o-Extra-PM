@@ -55,8 +55,8 @@
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
     .hint{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.45}
     .badge-month{display:inline-block;background: rgba(255,213,74,.14);border: 1px solid rgba(255,213,74,.55);color: #ffe08a;padding: 8px 10px;border-radius: 999px;font-size: 12px;font-weight: 700;letter-spacing: .8px;}
-    .rowPast{border-left: 3px solid rgba(255,90,90,.8)}
-    .rowFuture{border-left: 3px solid rgba(24,255,109,.75)}
+    .rowPast{background: rgba(255,90,90,.12);}
+    /* rowFuture removed */
     .overlay{position:fixed; inset:0; z-index:50;background: rgba(0,0,0,.55);display:none;align-items:center; justify-content:center;padding: 18px;}
     .overlay.show{display:flex}
     .modal{width: min(760px, 96vw);background: rgba(19,19,19,.96);border:1px solid var(--line);border-radius: 18px;box-shadow: var(--shadow);padding: 16px;}
@@ -528,15 +528,15 @@
     const g = calcGrossFromService(rank, s, e);
     if(!g.ok){ toast('Hora inválida. Use HH:MM (ex: 18:00)'); return; }
     const f = calcNetFromGross(g.gross, cfg);
-    document.getElementById('oneHours').textContent = `${formatBRDecimal(g.totalH,2)}h`;
-    document.getElementById('oneNightHours').textContent = `${formatBRDecimal(g.nightH,2)}h`;
+    document.getElementById('oneHours').textContent = `${Math.floor(g.totalH)}h`;
+    document.getElementById('oneNightHours').textContent = `${Math.floor(g.nightH)}h`;
     document.getElementById('oneGross').textContent = brMoney.format(g.gross);
     document.getElementById('oneNet').textContent = brMoney.format(f.net);
     document.getElementById('oneIR').textContent = brMoney.format(f.irVal);
     document.getElementById('oneSPSM').textContent = brMoney.format(f.spsmVal);
     document.getElementById('oneDisc').textContent = brMoney.format(f.disc);
     document.getElementById('oneNet2').textContent = brMoney.format(f.net);
-    oneNote.innerHTML = `Cálculo: <span class="mono">(${formatBRDecimal(g.totalH,2)}h × ${brMoney.format(RATES[rank].extra)}) + (${formatBRDecimal(g.nightH,2)}h × ${brMoney.format(RATES[rank].night)})</span>`;
+    oneNote.innerHTML = `Cálculo: <span class="mono">(${Math.floor(g.totalH)}h × ${brMoney.format(RATES[rank].extra)}) + (${Math.floor(g.nightH)}h × ${brMoney.format(RATES[rank].night)})</span>`;
   });
 
   const mName = document.getElementById('mName');
@@ -582,7 +582,7 @@
                  `Total bruto: ${brMoney.format(sumGross)}\n`+
                  `Descontos (IR+SPSM): ${brMoney.format(sumDisc)}\n`+
                  `Total líquido: ${brMoney.format(sumNet)}\n`+
-                 `Horas: ${formatBRDecimal(sumH,2)}h | Noturno: ${formatBRDecimal(sumNH,2)}h\n`+
+                 `Horas: ${Math.floor(sumH)}h | Noturno: ${Math.floor(sumNH)}h\n`+
                  `Qtd. serviços: ${monthItems.length}`;
     try{
       if(navigator.share){ await navigator.share({ title:'Resumo de Extras', text }); }
@@ -618,8 +618,8 @@
         <td>${dateStr}</td>
         <td>${escapeHtml(it.name)}</td>
         <td class="mono">${it.start}–${it.end}</td>
-        <td class="right mono">${formatBRDecimal(r.totalH,2)}h</td>
-        <td class="right mono">${formatBRDecimal(r.nightH,2)}h</td>
+        <td class="right mono">${Math.floor(r.totalH)}h</td>
+        <td class="right mono">${Math.floor(r.nightH)}h</td>
         <td class="right">${brMoney.format(r.gross)}</td>
         <td class="right"><strong>${brMoney.format(r.net)}</strong></td>
         <td class="right">
@@ -634,7 +634,7 @@
     document.getElementById('monthGross').textContent = brMoney.format(Math.round(sumGross*100)/100);
     document.getElementById('monthDisc').textContent = brMoney.format(Math.round(sumDisc*100)/100);
     document.getElementById('monthNet').textContent = brMoney.format(Math.round(sumNet*100)/100);
-    document.getElementById('monthHours').textContent = `${formatBRDecimal(sumH,2)}h / ${formatBRDecimal(sumNH,2)}h`;
+    document.getElementById('monthHours').textContent = `${Math.floor(sumH)}h / ${Math.floor(sumNH)}h`;
 
     tbody.querySelectorAll('button[data-del]').forEach(btn=>btn.addEventListener('click', ()=>{ removeItem(btn.dataset.del); renderMonth(); renderCalendar(); toast('Extra removido.'); }));
     tbody.querySelectorAll('button[data-addcal]').forEach(btn=>btn.addEventListener('click', ()=>{
@@ -685,14 +685,14 @@
       sumGross+=r.gross; sumNet+=r.net; sumH+=r.totalH; sumNH+=r.nightH;
       const tr = document.createElement('tr');
       if(isPast(it.date)) tr.classList.add('rowPast');
-      if(isFuture(it.date)) tr.classList.add('rowFuture');
+      
       tr.innerHTML = `
         <td>${new Date(it.date+'T00:00:00').toLocaleDateString('pt-BR')}</td>
         <td>${escapeHtml(it.name)}</td>
         <td class="mono">${it.start}</td>
         <td class="mono">${it.end}</td>
-        <td class="right mono">${formatBRDecimal(r.totalH,2)}h</td>
-        <td class="right mono">${formatBRDecimal(r.nightH,2)}h</td>
+        <td class="right mono">${Math.floor(r.totalH)}h</td>
+        <td class="right mono">${Math.floor(r.nightH)}h</td>
         <td class="right">${brMoney.format(r.gross)}</td>
         <td class="right"><strong>${brMoney.format(r.net)}</strong></td>
         <td class="right">
@@ -705,7 +705,7 @@
     });
 
     document.getElementById('calTotals').innerHTML =
-      `<strong>Totais do mês:</strong> Bruto ${brMoney.format(Math.round(sumGross*100)/100)} • Líquido ${brMoney.format(Math.round(sumNet*100)/100)} • Horas ${formatBRDecimal(sumH,2)}h • Noturno ${formatBRDecimal(sumNH,2)}h`;
+      `<strong>Totais do mês:</strong> Bruto ${brMoney.format(Math.round(sumGross*100)/100)} • Líquido ${brMoney.format(Math.round(sumNet*100)/100)} • Horas ${Math.floor(sumH)}h • Noturno ${Math.floor(sumNH)}h`;
 
     tbody.querySelectorAll('button[data-del]').forEach(btn=>btn.addEventListener('click', ()=>{ removeItem(btn.dataset.del); renderCalendar(); renderMonth(); toast('Serviço excluído.'); }));
     tbody.querySelectorAll('button[data-edit]').forEach(btn=>btn.addEventListener('click', ()=> openEditModal(btn.dataset.edit)));
