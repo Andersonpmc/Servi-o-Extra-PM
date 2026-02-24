@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0c0c0c" />
-  <title>Calculadora de Hora Extra PM</title>
+  <title>Calculadora de Extra PM</title>
   <style>
     :root{
       --bg:#0c0c0c;--card:#131313;--muted:#a8a8a8;--text:#f2f2f2;--accent:#18ff6d;
@@ -78,10 +78,10 @@
       <div class="pill" id="pillFactor"><span class="muted">Fator líquido</span> <strong class="mono">0,62</strong></div>
     </div>
     <div class="tabs" role="tablist">
-      <div class="tab" role="tab" tabindex="0" aria-selected="true" data-tab="config">Config</div>
       <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="unico">Calcular extra</div>
-      <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="mes">Mês</div>
+      <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="mes">Cálculo mensal</div>
       <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="cal">Calendário</div>
+      <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="config">Config</div>
     </div>
   </div>
 </header>
@@ -172,7 +172,7 @@
 
   <section class="grid" id="view-mes" style="display:none">
     <div class="card">
-      <h2>Extras do mês</h2>
+      <h2>Cálculo mensal</h2>
       <p class="sub">Cadastre cada serviço. O app calcula automaticamente horas totais, horas noturnas, bruto e líquido.</p>
       <div class="row two">
         <div><label for="mName">Nome do serviço extra</label><input id="mName" placeholder="Ex.: Operação Bairro" /></div>
@@ -863,6 +863,7 @@
   function renderOneRates(){ const r = RATES[oneRank.value]; oneRates.value = `Extra: ${brMoney.format(r.extra)}/h | Noturno: ${brMoney.format(r.night)}/h`; }
 
   function init(){
+    localStorage.removeItem('ui_tab');
     // Initialize default config in first run
     if(localStorage.getItem('cfg_ir')===null || localStorage.getItem('cfg_spsm')===null){
       saveConfig(DEFAULTS);
@@ -889,7 +890,7 @@
     renderMonth();
     renderCalendar();
 
-    const lastTab = localStorage.getItem('ui_tab') || 'unico';
+    const lastTab = 'unico';
     setTab(lastTab);
 
     // Welcome modal (shown once per device)
