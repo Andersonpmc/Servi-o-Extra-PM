@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0c0c0c" />
-  <title>Calculadora de Extra PM</title>
+  <title>Calculadora de Hora Extra PM</title>
   <style>
     :root{
       --bg:#0c0c0c;--card:#131313;--muted:#a8a8a8;--text:#f2f2f2;--accent:#18ff6d;
@@ -72,14 +72,14 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <h1>Calculadora de Extra PM</h1>
+        <h1>Calculadora de Extra PM <span style="font-size:11px; font-weight:600; color: var(--muted);">v1.0</span></h1>
         <p>Formato brasileiro • IR + SPSM configuráveis • 1 extra, mês e calendário</p>
       </div>
       <div class="pill" id="pillFactor"><span class="muted">Fator líquido</span> <strong class="mono">0,62</strong></div>
     </div>
     <div class="tabs" role="tablist">
       <div class="tab" role="tab" tabindex="0" aria-selected="true" data-tab="config">Config</div>
-      <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="unico">1 Extra</div>
+      <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="unico">Calcular extra</div>
       <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="mes">Mês</div>
       <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="cal">Calendário</div>
     </div>
@@ -863,6 +863,11 @@
   function renderOneRates(){ const r = RATES[oneRank.value]; oneRates.value = `Extra: ${brMoney.format(r.extra)}/h | Noturno: ${brMoney.format(r.night)}/h`; }
 
   function init(){
+    // Initialize default config in first run
+    if(localStorage.getItem('cfg_ir')===null || localStorage.getItem('cfg_spsm')===null){
+      saveConfig(DEFAULTS);
+    }
+
     fillRankSelect(document.getElementById('oneRank'));
     fillRankSelect(document.getElementById('mRank'));
 
@@ -884,8 +889,24 @@
     renderMonth();
     renderCalendar();
 
-    const lastTab = localStorage.getItem('ui_tab') || 'config';
+    const lastTab = localStorage.getItem('ui_tab') || 'unico';
     setTab(lastTab);
+
+    // Welcome modal (shown once per device)
+    if(!localStorage.getItem('welcome_seen')){
+      openModal({
+        title: 'Seja bem vindo!',
+        sub: 'Esse app lhe auxilia a calcular suas horas extras, além de poder salvar seus serviço em um calendário.',
+        bodyHtml: `<div class="btnrow" style="margin-top:6px; justify-content:flex-end">
+                    <button class="primary" id="btnWelcomeOk">Entendi</button>
+                   </div>`
+      });
+      document.getElementById('btnWelcomeOk').addEventListener('click', ()=>{
+        localStorage.setItem('welcome_seen','1');
+        closeModal();
+      });
+    }
+
   }
 
   init();
